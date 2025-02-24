@@ -45,6 +45,7 @@ class _SideBarState extends State<SideBar> {
                 const SizedBox(height: 10),
                 const Divider(thickness: 0.2),
                 _buildMenuItem(
+                    context: context,
                     isSelected: selectedSideBar == 1,
                     title: 'Products',
                     icon: Icons.inventory_2_outlined,
@@ -53,6 +54,7 @@ class _SideBarState extends State<SideBar> {
                       setState(() {});
                     }),
                 _buildMenuItem(
+                    context: context,
                     isSelected: selectedSideBar == 2,
                     title: 'Orders',
                     icon: Icons.shopping_cart_outlined,
@@ -61,6 +63,7 @@ class _SideBarState extends State<SideBar> {
                       setState(() {});
                     }),
                 _buildMenuItem(
+                    context: context,
                     isSelected: selectedSideBar == 3,
                     title: 'Reviews',
                     icon: Icons.reviews_outlined,
@@ -69,6 +72,7 @@ class _SideBarState extends State<SideBar> {
                       setState(() {});
                     }),
                 _buildMenuItem(
+                    context: context,
                     isSelected: selectedSideBar == 4,
                     title: 'Analytics',
                     icon: Icons.analytics_outlined,
@@ -78,6 +82,7 @@ class _SideBarState extends State<SideBar> {
                     }),
                 const Divider(thickness: 0.2),
                 _buildMenuItem(
+                  context: context,
                   isSelected: false,
                   title: context.watch<ProductsProvider>().isDarkMode
                       ? 'Dark Mode'
@@ -115,33 +120,42 @@ class _SideBarState extends State<SideBar> {
   }
 
   Widget _buildMenuItem({
+    required BuildContext context, // Pass context explicitly
     required IconData icon,
     required String title,
     required VoidCallback onTap,
     required bool isSelected,
     Widget? switchNightOrLightMode,
   }) {
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    Color backgroundColor = Colors.transparent;
+    Color iconColor = Colors.grey[600]!;
+    Color textColor = Colors.grey[600]!;
+
+    if (isSelected) {
+      if (isDarkMode) {
+        backgroundColor = const Color(0xffffffff).withOpacity(0.1);
+        iconColor = Colors.white;
+        textColor = Colors.white;
+      } else {
+        backgroundColor = const Color(0xffdb3022).withOpacity(0.1);
+        iconColor = const Color(0xffdb3022);
+        textColor = const Color(0xffdb3022);
+      }
+    }
+
     return InkWell(
+      onTap: onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xffdb3022).withOpacity(0.1)
-              : Colors.transparent,
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(8),
         ),
         child: ListTile(
-          onTap: onTap,
-          leading: Icon(
-            icon,
-            color: isSelected ? const Color(0xffdb3022) : Colors.grey[600],
-          ),
-          title: Text(
-            title,
-            style: TextStyle(
-              color: isSelected ? const Color(0xffdb3022) : Colors.grey[600],
-            ),
-          ),
+          leading: Icon(icon, color: iconColor),
+          title: Text(title, style: TextStyle(color: textColor)),
           selected: isSelected,
           trailing: switchNightOrLightMode,
         ),
@@ -149,3 +163,37 @@ class _SideBarState extends State<SideBar> {
     );
   }
 }
+
+
+
+// Container(
+//         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+
+//         decoration: BoxDecoration(
+//           color: isSelected && Theme.of(context).brightness == Brightness.dark
+//               ? const Color(0xffffffff).withOpacity(0.1)
+//               : Colors.transparent,
+//           borderRadius: BorderRadius.circular(8),
+//         ),
+//         child: ListTile(
+//           onTap: onTap,
+//           leading: Icon(
+//             icon,
+//             color: isSelected && Theme.of(context).brightness == Brightness.dark
+//                 ? const Color(0xffffffff)
+//                 : Colors.grey[600],
+//           ),
+//           title: Text(
+//             title,
+//             style: TextStyle(
+//               color:
+//                   isSelected && Theme.of(context).brightness == Brightness.dark
+//                       ? const Color(0xffffffff)
+//                       : Colors.grey[600],
+//             ),
+//           ),
+//           selected: isSelected,
+//           trailing: switchNightOrLightMode,
+//         ),
+//       ),
+

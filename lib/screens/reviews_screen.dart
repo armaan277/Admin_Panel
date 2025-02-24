@@ -66,15 +66,16 @@ class _GroupCardsScreenState extends State<GroupCardsScreen> {
                     if (demo(products[index]['id']).isNotEmpty)
                       Container(
                         margin: const EdgeInsets.symmetric(
-                            vertical: 10.0, horizontal: 8.0),
+                          vertical: 10.0,
+                          horizontal: 8.0,
+                        ),
                         decoration: BoxDecoration(
-                          // color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.withOpacity(0.1),
+                              color: Theme.of(context).canvasColor,
                               spreadRadius: 0,
-                              blurRadius: 10,
+                              blurRadius: 0.5,
                               offset: const Offset(0, 2),
                             ),
                           ],

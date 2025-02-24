@@ -227,7 +227,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
-                    color: Colors.white60,
+                    color: Theme.of(context).canvasColor,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.white60.withOpacity(0.2),
@@ -284,12 +284,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).canvasColor,
                             borderRadius: BorderRadius.circular(8),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.grey.withOpacity(0.2),
-                                blurRadius: 6,
+                                color: Colors.grey.withOpacity(0.1),
+                                blurRadius: 2,
                                 offset: const Offset(3, 3),
                               ),
                             ],

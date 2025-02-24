@@ -193,8 +193,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                           const SizedBox(height: 4),
                                           Text(
                                             '\$ ${product['price'] ?? 0.0}',
-                                            style: TextStyle(
-                                                color: Colors.grey[600]),
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
@@ -362,9 +360,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                         clearFields();
                       },
                       style: ElevatedButton.styleFrom(
-                        side: BorderSide(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
                         minimumSize: const Size(50, 44),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
@@ -373,15 +368,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
                         ),
                       ),
                       icon: const Icon(
-                        color: Color(0xffdb3022),
                         size: 16,
                         Icons.cancel,
                       ),
                       label: const Text(
                         'Clear',
-                        style: TextStyle(
-                          color: Color(0xffdb3022),
-                        ),
+                        style: TextStyle(),
                       ),
                     ),
                     ElevatedButton.icon(
@@ -414,18 +406,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
                             8,
                           ), // Optional: Rounded corners
                         ),
-                        backgroundColor: Theme.of(context).colorScheme.primary,
                       ),
                       icon: const Icon(
                         size: 16,
                         Icons.edit,
-                        color: Colors.white,
                       ),
                       label: const Text(
                         'Update Product',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
                       ),
                     ),
                   ],

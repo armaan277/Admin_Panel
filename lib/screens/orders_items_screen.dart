@@ -27,8 +27,7 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
   }
 
   void fetchOrderItems(String orderIdItems) async {
-    final url = Uri.parse(
-        'http://localhost:3000/bookingcarts/$orderIdItems');
+    final url = Uri.parse('http://localhost:3000/bookingcarts/$orderIdItems');
 
     debugPrint('Fetching items for orderItemsId: $orderIdItems');
 
@@ -68,8 +67,7 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
 
   Future<bool> updateStatusInDatabase(
       String orderId, String orderStatus) async {
-    final url =
-        Uri.parse('http://localhost:3000/orderlist/$orderId');
+    final url = Uri.parse('http://localhost:3000/orderlist/$orderId');
 
     try {
       final response = await http.put(
@@ -91,10 +89,8 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
     }
   }
 
-
   void getOrderStatus(String orderId) async {
-    final url = Uri.parse(
-        'http://localhost:3000/orderlist/status/$orderId');
+    final url = Uri.parse('http://localhost:3000/orderlist/status/$orderId');
 
     try {
       final response = await http.get(url);
@@ -144,8 +140,7 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
 
   // Function to update status in the database
   Future<void> status(String orderId, String newStatus) async {
-    final url =
-        Uri.parse('http://localhost:3000/orderlist/$orderId');
+    final url = Uri.parse('http://localhost:3000/orderlist/$orderId');
 
     try {
       final response = await http.put(
@@ -177,7 +172,7 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
@@ -194,7 +189,6 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Color(0xffdb3022),
       ),
       body: isLoading
           ? const Center(
@@ -221,7 +215,7 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
                         bottom: 60,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).canvasColor,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -421,16 +415,9 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
         onTap: () {
           updatedStatus();
         },
-        child: Container(
+        child: SizedBox(
           height: 50,
           width: double.infinity,
-          decoration: BoxDecoration(
-            color: Color(0xffdb3022),
-            borderRadius: BorderRadius.only(
-              topRight: Radius.circular(10.0),
-              topLeft: Radius.circular(10.0),
-            ),
-          ),
           child: Center(
             child: Text(
               bottomSheetStatus,

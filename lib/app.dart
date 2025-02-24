@@ -19,11 +19,10 @@ class AdminPanel extends StatelessWidget {
                 primary: Color(0xffdb3022), // Keep red accent
                 surface: Colors.grey[850]!, // Card backgrounds
               ),
-
-              // appBarTheme: const AppBarTheme(
-              //   backgroundColor: Color(0xffdb3022),
-              //   titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
-              // ),
+              appBarTheme: AppBarTheme(
+                backgroundColor: Colors.grey[900],
+                titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+              ),
               cardColor: Colors.grey[850], // Cards in dark mode
               textTheme: const TextTheme(
                 titleLarge: TextStyle(color: Colors.white),
@@ -34,7 +33,6 @@ class AdminPanel extends StatelessWidget {
               elevatedButtonTheme: ElevatedButtonThemeData(
                 style: ButtonStyle(
                   minimumSize: WidgetStatePropertyAll(const Size(0, 44)),
-                     
                   backgroundColor: WidgetStatePropertyAll(Colors.grey[900]),
                   foregroundColor: WidgetStatePropertyAll(Colors.white),
                 ),
@@ -46,6 +44,18 @@ class AdminPanel extends StatelessWidget {
                   borderSide: BorderSide(color: Colors.white),
                 ),
                 hintStyle: TextStyle(color: Colors.white70),
+              ),
+              bottomSheetTheme: BottomSheetThemeData(
+                backgroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(10),
+                  ),
+                  side: BorderSide(
+                    color: Colors.grey.shade300, // Light mode border color
+                    width: 1,
+                  ),
+                ),
               ),
             )
           : ThemeData.light().copyWith(
@@ -78,6 +88,18 @@ class AdminPanel extends StatelessWidget {
                   borderSide: BorderSide(color: Colors.black54),
                 ),
                 hintStyle: TextStyle(color: Colors.black45),
+              ),
+              bottomSheetTheme: BottomSheetThemeData(
+                backgroundColor: Color(0xffdb3022),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(10),
+                  ),
+                  side: BorderSide(
+                    color: Colors.grey.shade300, // Light mode border color
+                    width: 1,
+                  ),
+                ),
               ),
             ),
       debugShowCheckedModeBanner: false,
