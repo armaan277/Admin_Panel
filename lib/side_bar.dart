@@ -16,7 +16,6 @@ class SideBar extends StatefulWidget {
 
 class _SideBarState extends State<SideBar> {
   int selectedSideBar = 1;
-  // bool isNightOrLightMode = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -163,37 +162,3 @@ class _SideBarState extends State<SideBar> {
     );
   }
 }
-
-
-
-// Container(
-//         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-
-//         decoration: BoxDecoration(
-//           color: isSelected && Theme.of(context).brightness == Brightness.dark
-//               ? const Color(0xffffffff).withOpacity(0.1)
-//               : Colors.transparent,
-//           borderRadius: BorderRadius.circular(8),
-//         ),
-//         child: ListTile(
-//           onTap: onTap,
-//           leading: Icon(
-//             icon,
-//             color: isSelected && Theme.of(context).brightness == Brightness.dark
-//                 ? const Color(0xffffffff)
-//                 : Colors.grey[600],
-//           ),
-//           title: Text(
-//             title,
-//             style: TextStyle(
-//               color:
-//                   isSelected && Theme.of(context).brightness == Brightness.dark
-//                       ? const Color(0xffffffff)
-//                       : Colors.grey[600],
-//             ),
-//           ),
-//           selected: isSelected,
-//           trailing: switchNightOrLightMode,
-//         ),
-//       ),
-

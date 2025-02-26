@@ -31,7 +31,7 @@ class _UserReviewsScreenState extends State<UserReviewsScreen> {
     debugPrint('filterReviews: $filterReviews');
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
@@ -48,13 +48,10 @@ class _UserReviewsScreenState extends State<UserReviewsScreen> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Color(0xffDB3022),
       ),
       body: filterReviews.isEmpty
           ? Center(
-              child: CircularProgressIndicator(
-                color: Color(0xffdb3022),
-              ),
+              child: CircularProgressIndicator(),
             )
           : GridView.builder(
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -71,7 +68,7 @@ class _UserReviewsScreenState extends State<UserReviewsScreen> {
                     margin: EdgeInsets.only(left: 20, top: 20, right: 20),
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
@@ -207,7 +204,7 @@ class _UserReviewsScreenState extends State<UserReviewsScreen> {
 
   Future<void> getReviewData() async {
     try {
-      final url = Uri.parse('http://localhost:3000/reviews');
+      final url = Uri.parse('https://ecommerce-rendered.onrender.com/reviews');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {

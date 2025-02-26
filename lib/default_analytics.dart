@@ -66,7 +66,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
           isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to load orders!')),
+          const SnackBar(
+            content: Center(
+              child: Text('Failed to load orders!'),
+            ),
+          ),
         );
       }
     } catch (e) {
@@ -74,7 +78,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
         isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching orders: $e')),
+        SnackBar(
+          content: Center(
+            child: Text('Error fetching orders: $e'),
+          ),
+        ),
       );
     }
   }
@@ -456,6 +464,4 @@ class _OrdersScreenState extends State<OrdersScreen> {
       return false;
     }
   }
-
-
 }

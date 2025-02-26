@@ -15,7 +15,7 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
   List<dynamic> orders = [];
   Map<String, int> dailyOrderCounts = {};
   Map<String, double> dailyPriceSum = {};
-  
+
   // Initialize with default dates
   DateTime? startDate = DateTime.now().subtract(const Duration(days: 10));
   DateTime? endDate = DateTime.now();
@@ -74,9 +74,7 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
       backgroundColor: Colors.grey[50],
       body: orders.isEmpty
           ? Center(
-              child: CircularProgressIndicator(
-                color: Color(0xffdb3022),
-              ),
+              child: CircularProgressIndicator(),
             )
           : Column(
               children: [
@@ -140,7 +138,8 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                               barTouchData: BarTouchData(
                                 enabled: true,
                                 touchTooltipData: BarTouchTooltipData(
-                                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                                  getTooltipItem:
+                                      (group, groupIndex, rod, rodIndex) {
                                     return BarTooltipItem(
                                       '${rod.toY.round()} orders',
                                       TextStyle(
@@ -160,7 +159,8 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                                       final date = startDate!
                                           .add(Duration(days: value.toInt()));
                                       return Padding(
-                                        padding: const EdgeInsets.only(top: 8.0),
+                                        padding:
+                                            const EdgeInsets.only(top: 8.0),
                                         child: Text(
                                           DateFormat('dd').format(date),
                                           style: TextStyle(
@@ -208,9 +208,11 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                                   );
                                 },
                               ),
-                              barGroups: List.generate(getDaysBetween(), (index) {
-                                final date = startDate?.add(Duration(days: index));
-                                final dateString = date != null 
+                              barGroups:
+                                  List.generate(getDaysBetween(), (index) {
+                                final date =
+                                    startDate?.add(Duration(days: index));
+                                final dateString = date != null
                                     ? DateFormat('d-M-yyyy').format(date)
                                     : '';
                                 final count = dailyOrderCounts[dateString] ?? 0;
@@ -252,7 +254,8 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                       children: [
                         Text(
                           'Orders Price Analytics (${formatDate(startDate)} to ${formatDate(endDate)})',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(height: 40),
                         Expanded(
@@ -267,7 +270,8 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                               barTouchData: BarTouchData(
                                 enabled: true,
                                 touchTooltipData: BarTouchTooltipData(
-                                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                                  getTooltipItem:
+                                      (group, groupIndex, rod, rodIndex) {
                                     return BarTooltipItem(
                                       '₹${rod.toY.toStringAsFixed(2)}',
                                       TextStyle(
@@ -286,7 +290,8 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                                       final date = startDate!
                                           .add(Duration(days: value.toInt()));
                                       return Padding(
-                                        padding: const EdgeInsets.only(top: 8.0),
+                                        padding:
+                                            const EdgeInsets.only(top: 8.0),
                                         child: Text(
                                           DateFormat('d').format(date),
                                           style: TextStyle(
@@ -312,14 +317,17 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                                   ),
                                 ),
                               ),
-                              gridData:
-                                  FlGridData(show: true, drawVerticalLine: false),
-                              barGroups: List.generate(getDaysBetween(), (index) {
-                                final date = startDate?.add(Duration(days: index));
+                              gridData: FlGridData(
+                                  show: true, drawVerticalLine: false),
+                              barGroups:
+                                  List.generate(getDaysBetween(), (index) {
+                                final date =
+                                    startDate?.add(Duration(days: index));
                                 final dateString = date != null
                                     ? DateFormat('d-M-yyyy').format(date)
                                     : '';
-                                final totalPrice = dailyPriceSum[dateString] ?? 0.0;
+                                final totalPrice =
+                                    dailyPriceSum[dateString] ?? 0.0;
                                 return BarChartGroupData(
                                   x: index,
                                   barRods: [
@@ -338,7 +346,8 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                         SizedBox(height: 20),
                         Text(
                           'Total Revenue: ₹${dailyPriceSum.values.fold(0.0, (prev, element) => prev + element).toStringAsFixed(2)}',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -363,14 +372,15 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
 
     // Process orders and count by date
     for (var order in orders) {
-      final orderDate = DateFormat('d-M-yyyy').parse(order['order_booking_date']);
+      final orderDate =
+          DateFormat('d-M-yyyy').parse(order['order_booking_date']);
       if (orderDate.isAfter(startDate!.subtract(const Duration(days: 1))) &&
           orderDate.isBefore(endDate!.add(const Duration(days: 1)))) {
         final dateString = DateFormat('d-M-yyyy').format(orderDate);
-        
+
         // Update order counts
         dailyOrderCounts[dateString] = (dailyOrderCounts[dateString] ?? 0) + 1;
-        
+
         // Update price sums
         double price = (order['price'] as num).toDouble();
         dailyPriceSum[dateString] = (dailyPriceSum[dateString] ?? 0) + price;
@@ -386,4 +396,3 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
     getOrders();
   }
 }
-

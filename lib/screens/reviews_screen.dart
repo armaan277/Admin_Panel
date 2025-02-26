@@ -15,6 +15,7 @@ class GroupCardsScreen extends StatefulWidget {
 class _GroupCardsScreenState extends State<GroupCardsScreen> {
   List products = [];
   List reviews = [];
+  bool isReviewLoaded = true;
 
   @override
   void initState() {
@@ -49,14 +50,12 @@ class _GroupCardsScreenState extends State<GroupCardsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // debugPrint('${products.map((product) => product['id'])}');
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: reviews.isEmpty
+      body: isReviewLoaded
           ? Center(
-              child: CircularProgressIndicator(
-                color: Color(0xffdb3022),
-              ),
+              child: CircularProgressIndicator(),
             )
           : ListView.builder(
               itemCount: products.length,
@@ -70,12 +69,12 @@ class _GroupCardsScreenState extends State<GroupCardsScreen> {
                           horizontal: 8.0,
                         ),
                         decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
                               color: Theme.of(context).canvasColor,
-                              spreadRadius: 0,
-                              blurRadius: 0.5,
+                              blurRadius: 0.2,
                               offset: const Offset(0, 2),
                             ),
                           ],
@@ -107,7 +106,6 @@ class _GroupCardsScreenState extends State<GroupCardsScreen> {
                                         Text(
                                           products[index]['title'] ?? '',
                                           style: const TextStyle(
-                                            color: Color(0xffDB3022),
                                             fontWeight: FontWeight.w500,
                                             fontSize: 16,
                                           ),
@@ -120,7 +118,9 @@ class _GroupCardsScreenState extends State<GroupCardsScreen> {
                                             products[index]['description'] ??
                                                 '',
                                             style: TextStyle(
-                                              color: Colors.grey[700],
+                                              color: isDarkMode
+                                                  ? Colors.white54
+                                                  : Colors.black87,
                                               fontSize: 14,
                                             ),
                                           ),
@@ -151,14 +151,18 @@ class _GroupCardsScreenState extends State<GroupCardsScreen> {
                                         vertical: 6,
                                       ),
                                       decoration: BoxDecoration(
-                                        color:
-                                            Color(0xffDB3022).withOpacity(0.1),
+                                        color: isDarkMode
+                                            ? Color(0xffffffff).withOpacity(0.1)
+                                            : Color(0xffDB3022)
+                                                .withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(16),
                                       ),
                                       child: Text(
                                         'See All Reviews (${demo(products[index]['id']).length})',
                                         style: TextStyle(
-                                          color: Color(0xffDB3022),
+                                          color: isDarkMode
+                                              ? Color(0xffffffff)
+                                              : Color(0xffDB3022),
                                           fontSize: 12,
                                         ),
                                       ),
@@ -177,10 +181,12 @@ class _GroupCardsScreenState extends State<GroupCardsScreen> {
                                     children: [
                                       Row(
                                         children: [
-                                          const Text(
+                                          Text(
                                             'RATING:',
                                             style: TextStyle(
-                                              color: Colors.grey,
+                                              color: isDarkMode
+                                                  ? Colors.white70
+                                                  : Colors.grey,
                                               fontSize: 14,
                                             ),
                                           ),
@@ -217,17 +223,18 @@ class _GroupCardsScreenState extends State<GroupCardsScreen> {
   }
 
   void getProducts() async {
-    final url = Uri.parse('http://localhost:3000/product');
+    final url = Uri.parse('https://ecommerce-rendered.onrender.com/products');
     final response = await http.get(url);
     final listResponse = jsonDecode(response.body);
     products = listResponse;
+    isReviewLoaded = false;
     setState(() {});
   }
 
   Future<void> getReviewData() async {
     try {
       // Construct the API URL
-      final url = Uri.parse('http://localhost:3000/reviews');
+      final url = Uri.parse('https://ecommerce-rendered.onrender.com/reviews');
 
       // Send GET request
       final response = await http.get(url);
@@ -236,13 +243,16 @@ class _GroupCardsScreenState extends State<GroupCardsScreen> {
         // Decode the response body
         final reviewsResponse = jsonDecode(response.body);
         reviews = reviewsResponse;
+        isReviewLoaded = false;
+        setState(() {});
         debugPrint('Reviews: $reviews'); // Debugging log
+      } else if (response.statusCode == 404) {
+        reviews = [];
+        setState(() {});
       } else {
         debugPrint(
             'Failed to load reviews. Status code: ${response.statusCode}');
-        if (response.statusCode == 404) {
-          reviews = [];
-        }
+        setState(() {});
       }
     } catch (e) {
       debugPrint('Error fetching reviews: $e'); // Handle errors

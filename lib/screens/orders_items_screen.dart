@@ -27,7 +27,8 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
   }
 
   void fetchOrderItems(String orderIdItems) async {
-    final url = Uri.parse('http://localhost:3000/bookingcarts/$orderIdItems');
+    final url = Uri.parse(
+        'https://ecommerce-rendered.onrender.com/bookingcarts/$orderIdItems');
 
     debugPrint('Fetching items for orderItemsId: $orderIdItems');
 
@@ -67,7 +68,8 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
 
   Future<bool> updateStatusInDatabase(
       String orderId, String orderStatus) async {
-    final url = Uri.parse('http://localhost:3000/orderlist/$orderId');
+    final url =
+        Uri.parse('https://ecommerce-rendered.onrender.com/orderlist/$orderId');
 
     try {
       final response = await http.put(
@@ -90,7 +92,8 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
   }
 
   void getOrderStatus(String orderId) async {
-    final url = Uri.parse('http://localhost:3000/orderlist/status/$orderId');
+    final url = Uri.parse(
+        'https://ecommerce-rendered.onrender.com/orderlist/status/$orderId');
 
     try {
       final response = await http.get(url);
@@ -140,7 +143,8 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
 
   // Function to update status in the database
   Future<void> status(String orderId, String newStatus) async {
-    final url = Uri.parse('http://localhost:3000/orderlist/$orderId');
+    final url =
+        Uri.parse('https://ecommerce-rendered.onrender.com/orderlist/$orderId');
 
     try {
       final response = await http.put(
@@ -215,7 +219,7 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
                         bottom: 60,
                       ),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).canvasColor,
+                        color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -247,7 +251,7 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
                                               'Order details',
                                               style: TextStyle(
                                                 fontSize: 18,
-                                                fontWeight: FontWeight.w600,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                             const SizedBox(width: 8),
@@ -277,7 +281,6 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
                                           child: Text(
                                             currentStatus,
                                             style: TextStyle(
-                                              color: Color(0xffdb3022),
                                               fontWeight: FontWeight.w300,
                                               letterSpacing: 1.5,
                                             ),

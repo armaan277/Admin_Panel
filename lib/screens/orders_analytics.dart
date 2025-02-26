@@ -69,14 +69,20 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    getOrders();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: orders.isEmpty
           ? Center(
-              child: CircularProgressIndicator(
-                color: Color(0xffdb3022),
-              ),
+              child: CircularProgressIndicator(),
             )
           : Column(
               children: [
@@ -122,7 +128,6 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                         Text(
                           'Orders Analytics (${formatDate(startDate)} to ${formatDate(endDate)})',
                           style: TextStyle(
-                            color: Colors.black87,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -166,7 +171,7 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                                         child: Text(
                                           DateFormat('dd').format(date),
                                           style: TextStyle(
-                                            color: Colors.grey[800],
+                                            // color: Colors.grey[800],
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -183,7 +188,7 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                                       return Text(
                                         value.toInt().toString(),
                                         style: TextStyle(
-                                          color: Colors.grey[600],
+                                          // color: Colors.grey[600],
                                           fontSize: 12,
                                         ),
                                       );
@@ -205,7 +210,9 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                                 horizontalInterval: 1,
                                 getDrawingHorizontalLine: (value) {
                                   return FlLine(
-                                    color: Color(0xffdb3022).withOpacity(0.5),
+                                    color: isDarkMode
+                                        ? Color(0xffffffff).withOpacity(0.5)
+                                        : Color(0xffdb3022),
                                     strokeWidth: 0.8,
                                   );
                                 },
@@ -223,7 +230,9 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                                   barRods: [
                                     BarChartRodData(
                                       toY: count.toDouble(),
-                                      color: Color(0xffdb3022),
+                                      color: isDarkMode
+                                          ? Color(0xffffffff)
+                                          : Color(0xffdb3022),
                                       width: 25,
                                       borderRadius: BorderRadius.circular(4),
                                     ),
@@ -238,7 +247,6 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                         Text(
                           'Total Orders: ${dailyOrderCounts.values.fold(0, (prev, element) => prev + element)}',
                           style: TextStyle(
-                            color: Colors.grey[800],
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -257,12 +265,26 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                         Text(
                           'Orders Price Analytics (${formatDate(startDate)} to ${formatDate(endDate)})',
                           style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         SizedBox(height: 40),
                         Expanded(
                           child: BarChart(
                             BarChartData(
+                              borderData: FlBorderData(
+                                show:
+                                    true, // Enables the border (set to false to remove)
+                                border: Border.all(
+                                  color: isDarkMode
+                                      ? Colors.white
+                                      : Color(
+                                          0xffdb3022,
+                                        ), // Change this to any color you want
+                                  width: 1, // Adjust thickness of the border
+                                ),
+                              ),
                               alignment: BarChartAlignment.spaceAround,
                               maxY: dailyPriceSum.isEmpty
                                   ? 100
@@ -295,7 +317,7 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                                         padding:
                                             const EdgeInsets.only(top: 8.0),
                                         child: Text(
-                                          DateFormat('d').format(date),
+                                          DateFormat('dd').format(date),
                                           style: TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold,
@@ -320,7 +342,9 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                                 ),
                               ),
                               gridData: FlGridData(
-                                  show: true, drawVerticalLine: false),
+                                show: true,
+                                drawVerticalLine: false,
+                              ),
                               barGroups:
                                   List.generate(getDaysBetween(), (index) {
                                 final date =
@@ -335,7 +359,9 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                                   barRods: [
                                     BarChartRodData(
                                       toY: totalPrice,
-                                      color: Color(0xffdb3022),
+                                      color: isDarkMode
+                                          ? Color(0xffffffff)
+                                          : Color(0xffdb3022),
                                       width: 25,
                                       borderRadius: BorderRadius.circular(4),
                                     ),
@@ -349,7 +375,9 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
                         Text(
                           'Total Revenue: ₹${dailyPriceSum.values.fold(0.0, (prev, element) => prev + element).toStringAsFixed(2)}',
                           style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -363,7 +391,7 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
   void getOrders() async {
     if (startDate == null || endDate == null) return;
 
-    final url = Uri.parse('http://localhost:3000/orderslist');
+    final url = Uri.parse('https://ecommerce-rendered.onrender.com/orderslist');
     final response = await http.get(url);
     final listResponse = jsonDecode(response.body);
     orders = listResponse;
@@ -390,11 +418,5 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
     }
 
     setState(() {});
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getOrders();
   }
 }

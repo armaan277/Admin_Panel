@@ -50,7 +50,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   // Fetch orders from the backend
   Future<void> fetchOrders() async {
     final url = Uri.parse(
-      'http://localhost:3000/orderslist',
+      'https://ecommerce-rendered.onrender.com/orderslist',
     ); // Backend URL
     try {
       final response = await http.get(url);
@@ -66,7 +66,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
           isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to load orders!')),
+          const SnackBar(
+            content: Center(
+              child: Text('Failed to load orders!'),
+            ),
+          ),
         );
       }
     } catch (e) {
@@ -74,7 +78,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
         isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching orders: $e')),
+        SnackBar(
+          content: Center(
+            child: Text('Error fetching orders: $e'),
+          ),
+        ),
       );
     }
   }
@@ -105,8 +113,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
           .toList();
     }
 
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: PreferredSize(
@@ -119,11 +129,13 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 15),
                   child: TabBar(
                     dividerHeight: 2,
-                    dividerColor: Colors.grey.shade300,
+                    dividerColor:
+                        isDarkMode ? Colors.grey : Colors.grey.shade300,
                     isScrollable: true,
-                    labelColor: Color(0xffdb3022),
+                    labelColor: isDarkMode ? Colors.white : Color(0xffdb3022),
                     unselectedLabelColor: Colors.grey,
-                    indicatorColor: Color(0xffdb3022),
+                    indicatorColor:
+                        isDarkMode ? Colors.white : Color(0xffdb3022),
                     indicatorWeight: 3,
                     tabs: [
                       Tab(
@@ -141,6 +153,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       Tab(
                         text:
                             'Delivered (${filtersOdersLength(orders, 'Delivered').length})',
+                      ),
+                      Tab(
+                        text:
+                            'Cancelled (${filtersOdersLength(orders, 'Canceled').length})',
                       ),
                     ],
                   ),
@@ -201,6 +217,15 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         )
                         .toList(),
                   ),
+                  _buildOrdersList(
+                    orders
+                        .where(
+                          (order) =>
+                              order['order_status'] == 'Canceled' &&
+                              order['order_booking_date'] == formattedDate,
+                        )
+                        .toList(),
+                  ),
                 ],
               ),
       ),
@@ -208,6 +233,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   Widget _buildOrdersList(List<dynamic> filteredOrders) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return filteredOrders.isEmpty
         ? Center(
             child: Text(
@@ -227,7 +254,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).canvasColor,
+                    color: Theme.of(context).cardColor,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.white60.withOpacity(0.2),
@@ -284,7 +311,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).canvasColor,
+                            color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(8),
                             boxShadow: [
                               BoxShadow(
@@ -343,23 +370,29 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: order['order_status'] ==
-                                              'Delivered'
-                                          ? Colors.green.withOpacity(0.2)
-                                          : order['order_status'] == 'Confirmed'
-                                              ? Colors.orange.withOpacity(0.2)
+                                      color: isDarkMode
+                                          ? Colors.white.withOpacity(0.2)
+                                          : order['order_status'] == 'Delivered'
+                                              ? Colors.green.withOpacity(0.2)
                                               : order['order_status'] ==
-                                                      'Canceled'
-                                                  ? Colors.red.withOpacity(0.2)
-                                                  : Colors.blue
-                                                      .withOpacity(0.2),
+                                                      'Confirmed'
+                                                  ? Colors.orange
+                                                      .withOpacity(0.2)
+                                                  : order['order_status'] ==
+                                                          'Canceled'
+                                                      ? Colors.red
+                                                          .withOpacity(0.2)
+                                                      : Colors.blue
+                                                          .withOpacity(0.2),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Text(
                                       order['order_status'],
                                       style: TextStyle(
-                                        color:
-                                            order['order_status'] == 'Delivered'
+                                        color: isDarkMode
+                                            ? Colors.white
+                                            : order['order_status'] ==
+                                                    'Delivered'
                                                 ? Colors.green
                                                 : order['order_status'] ==
                                                         'Confirmed'
@@ -434,8 +467,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   Future<bool> updateStatusInDatabase(
       String orderId, String orderStatus) async {
-    final url =
-        Uri.parse('http://localhost:3000/orderlist/$orderId'); // Fixed endpoint
+    final url = Uri.parse(
+      'https://ecommerce-rendered.onrender.com/orderlist/$orderId',
+    ); // Fixed endpoint
 
     try {
       final response = await http.patch(
@@ -446,12 +480,15 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
       if (response.statusCode == 200) {
         debugPrint('Status updated successfully: $orderStatus');
+        setState(() {});
         return true;
       } else {
+        setState(() {});
         debugPrint('Failed to update status: ${response.statusCode}');
         return false;
       }
     } catch (e) {
+      setState(() {});
       debugPrint('Error updating status: $e');
       return false;
     }

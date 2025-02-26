@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:new_admin_panel/providers/products_provider.dart';
+import 'package:new_admin_panel/screens/add_new_product_screen.dart';
 import 'package:new_admin_panel/side_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -14,9 +15,24 @@ class AdminPanel extends StatelessWidget {
       home: const SideBar(),
       theme: themeProvider.isDarkMode
           ? ThemeData.dark().copyWith(
+              progressIndicatorTheme: ProgressIndicatorThemeData(
+                color: Colors.white, // Light mode: Red color
+              ),
+              switchTheme: SwitchThemeData(
+                thumbColor: WidgetStateProperty.resolveWith<Color>(
+                  (states) => states.contains(WidgetState.selected)
+                      ? Colors.black
+                      : Colors.white,
+                ),
+                trackColor: WidgetStateProperty.resolveWith<Color>(
+                  (states) => states.contains(WidgetState.selected)
+                      ? Colors.white
+                      : Colors.grey[800]!,
+                ),
+              ),
               scaffoldBackgroundColor: Colors.black, // Dark background
               colorScheme: ColorScheme.dark(
-                primary: Color(0xffdb3022), // Keep red accent
+                primary: Color(0xffffffff), // Keep red accent
                 surface: Colors.grey[850]!, // Card backgrounds
               ),
               appBarTheme: AppBarTheme(
@@ -32,9 +48,22 @@ class AdminPanel extends StatelessWidget {
               ),
               elevatedButtonTheme: ElevatedButtonThemeData(
                 style: ButtonStyle(
-                  minimumSize: WidgetStatePropertyAll(const Size(0, 44)),
-                  backgroundColor: WidgetStatePropertyAll(Colors.grey[900]),
-                  foregroundColor: WidgetStatePropertyAll(Colors.white),
+                  backgroundColor: WidgetStatePropertyAll(
+                      Colors.grey[850]), // Dark background
+                  foregroundColor:
+                      WidgetStatePropertyAll(Colors.white), // White text
+                  overlayColor: WidgetStateProperty.resolveWith<Color?>(
+                    (states) {
+                      if (states.contains(WidgetState.pressed)) {
+                        return const Color(0xffffffff)
+                            .withOpacity(0.2); // Click effect
+                      }
+                      if (states.contains(WidgetState.hovered)) {
+                        return Colors.white.withOpacity(0.2); // Hover effect
+                      }
+                      return null; // Default color
+                    },
+                  ),
                 ),
               ),
               inputDecorationTheme: InputDecorationTheme(
@@ -57,8 +86,27 @@ class AdminPanel extends StatelessWidget {
                   ),
                 ),
               ),
+              snackBarTheme: SnackBarThemeData(
+                backgroundColor: Colors.black,
+                contentTextStyle: TextStyle(color: Colors.white),
+              ),
             )
           : ThemeData.light().copyWith(
+              progressIndicatorTheme: ProgressIndicatorThemeData(
+                color: Color(0xffdb3022), // Light mode: Red color
+              ),
+              switchTheme: SwitchThemeData(
+                thumbColor: WidgetStateProperty.resolveWith<Color>(
+                  (states) => states.contains(WidgetState.selected)
+                      ? Colors.white
+                      : Colors.black,
+                ),
+                trackColor: WidgetStateProperty.resolveWith<Color>(
+                  (states) => states.contains(WidgetState.selected)
+                      ? Colors.black
+                      : Colors.grey[300]!,
+                ),
+              ),
               scaffoldBackgroundColor: Colors.grey.shade100, // Light background
               colorScheme: const ColorScheme.light(
                 primary: Color(0xffdb3022), // Red accent
@@ -100,6 +148,10 @@ class AdminPanel extends StatelessWidget {
                     width: 1,
                   ),
                 ),
+              ),
+              snackBarTheme: SnackBarThemeData(
+                backgroundColor: Color(0xffdb3022),
+                contentTextStyle: TextStyle(color: Colors.white),
               ),
             ),
       debugShowCheckedModeBanner: false,
