@@ -572,10 +572,6 @@ class _AddNewProductScreenState extends State<AddNewProductScreen> {
     final supabase = Supabase.instance.client;
     final url = Uri.parse('https://ecommerce-rendered.onrender.com/products');
 
-    setState(() {
-      isNewProductAdd = true;
-    });
-
     List<String> imagesList = []; // Store uploaded image URLs
 
     // Validate form
@@ -594,6 +590,9 @@ class _AddNewProductScreenState extends State<AddNewProductScreen> {
       );
       return;
     }
+    setState(() {
+      isNewProductAdd = true;
+    });
 
     for (var i = 0; i < listImages.length; i++) {
       Uint8List imageBytes = listImages[i]!;

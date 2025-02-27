@@ -34,6 +34,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   List<dynamic> orders = [];
   bool isLoading = true;
+  Map<String, bool> isOrderUpdating = {};
 
   @override
   void initState() {
@@ -386,25 +387,30 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                           .withOpacity(0.2),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
-                                    child: Text(
-                                      order['order_status'],
-                                      style: TextStyle(
-                                        color: isDarkMode
-                                            ? Colors.white
-                                            : order['order_status'] ==
-                                                    'Delivered'
-                                                ? Colors.green
-                                                : order['order_status'] ==
-                                                        'Confirmed'
-                                                    ? Colors.orange
-                                                    : order['order_status'] ==
-                                                            'Canceled'
-                                                        ? Colors.red.shade900
-                                                        : Colors.blue,
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 11,
-                                      ),
-                                    ),
+                                    child: isOrderUpdating[
+                                                order['order_items_id']] ==
+                                            true
+                                        ? CircularProgressIndicator()
+                                        : Text(
+                                            order['order_status'],
+                                            style: TextStyle(
+                                              color: isDarkMode
+                                                  ? Colors.white
+                                                  : order['order_status'] ==
+                                                          'Delivered'
+                                                      ? Colors.green
+                                                      : order['order_status'] ==
+                                                              'Confirmed'
+                                                          ? Colors.orange
+                                                          : order['order_status'] ==
+                                                                  'Canceled'
+                                                              ? Colors
+                                                                  .red.shade900
+                                                              : Colors.blue,
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 11,
+                                            ),
+                                          ),
                                   ),
                                 ),
                               ),
@@ -413,12 +419,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                         order['order_status'] ==
                                             "Out for Delivery"
                                     ? PopupMenuButton<String>(
-                                        icon: Icon(Icons
-                                            .more_vert), // Three dots (⋮) icon
+                                        icon: Icon(Icons.more_vert),
                                         onSelected: (String value) {
                                           order['order_status'] = value;
                                           debugPrint(
-                                              'order["order_status"]: ${order['order_status']}');
+                                            'order["order_status"]: ${order['order_status']}',
+                                          );
                                           updateStatusInDatabase(
                                             order['order_items_id'],
                                             order['order_status'],
@@ -466,10 +472,15 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   Future<bool> updateStatusInDatabase(
-      String orderId, String orderStatus) async {
-    final url = Uri.parse(
-      'https://ecommerce-rendered.onrender.com/orderlist/$orderId',
-    ); // Fixed endpoint
+    String orderId,
+    String orderStatus,
+  ) async {
+    final url =
+        Uri.parse('https://ecommerce-rendered.onrender.com/orderlist/$orderId');
+
+    setState(() {
+      isOrderUpdating[orderId] = true;
+    });
 
     try {
       final response = await http.patch(
@@ -480,10 +491,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
       if (response.statusCode == 200) {
         debugPrint('Status updated successfully: $orderStatus');
-        setState(() {});
         return true;
       } else {
-        setState(() {});
         debugPrint('Failed to update status: ${response.statusCode}');
         return false;
       }
@@ -491,6 +500,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
       setState(() {});
       debugPrint('Error updating status: $e');
       return false;
+    } finally {
+      setState(() {
+        isOrderUpdating[orderId] = false; // Remove loading for specific order
+      });
     }
   }
 }
