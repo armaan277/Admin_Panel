@@ -1,6 +1,6 @@
-# new_admin_panel
+# Admin_Panel for PRODUCT_APP
 
-A new Flutter project.
+A Flutter project.
 
 ## Getting Started
 
