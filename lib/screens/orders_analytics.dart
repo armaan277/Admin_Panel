@@ -391,7 +391,10 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
   void getOrders() async {
     if (startDate == null || endDate == null) return;
 
-    final url = Uri.parse('https://ecommerce-rendered.onrender.com/orderslist');
+    final url = Uri.parse('https://ecommerce-rendered.onrender.com/orderslist'); 
+    // final url = Uri.parse('http://localhost:3000/orderslist'); 
+
+    
     final response = await http.get(url);
     final listResponse = jsonDecode(response.body);
     orders = listResponse;

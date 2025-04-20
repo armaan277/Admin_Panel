@@ -5,7 +5,10 @@ import 'dart:convert';
 class OrdersItemsScreen extends StatefulWidget {
   final String orderItemsId;
 
-  const OrdersItemsScreen({super.key, required this.orderItemsId});
+  const OrdersItemsScreen({
+    super.key,
+    required this.orderItemsId,
+  });
 
   @override
   OrdersItemsScreenState createState() => OrdersItemsScreenState();
@@ -18,28 +21,30 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
 
   String currentStatus = '';
   String bottomSheetStatus = 'Out for Delivery';
+  bool isDelivered = false; // Flag to track delivered state
 
   @override
   void initState() {
     super.initState();
     fetchOrderItems(widget.orderItemsId);
     getOrderStatus(widget.orderItemsId);
+    // Sync isDelivered with currentStatus on init
+    isDelivered = currentStatus == 'Delivered';
+    debugPrint('isDelivered : $isDelivered');
+    if (isDelivered) {
+      bottomSheetStatus = 'Already Delivered';
+    }
   }
 
   void fetchOrderItems(String orderIdItems) async {
-    final url = Uri.parse(
-        'https://ecommerce-rendered.onrender.com/bookingcarts/$orderIdItems');
-
+    final url = Uri.parse('https://ecommerce-rendered.onrender.com/bookingcarts/$orderIdItems'); 
+    // final url = Uri.parse('http://localhost:3000/bookingcarts/$orderIdItems');
     debugPrint('Fetching items for orderItemsId: $orderIdItems');
-
     try {
       final response = await http.get(url);
-
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-
         debugPrint('Response Data: $data');
-
         setState(() {
           orderItems = data;
           isLoading = false;
@@ -68,17 +73,16 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
 
   Future<bool> updateStatusInDatabase(
       String orderId, String orderStatus) async {
-    final url =
-        Uri.parse('https://ecommerce-rendered.onrender.com/orderlist/$orderId');
-
+    // final url = Uri.parse('http://localhost:3000/orderlist/$orderId');
+    final url = Uri.parse('https://ecommerce-rendered.onrender.com/orderlist/$orderId');
     try {
       final response = await http.put(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'order_status': orderStatus}),
       );
-
       if (response.statusCode == 200) {
+        debugPrint('orderlist response: -> ${response.body}');
         debugPrint('Status updated successfully: $orderStatus');
         return true;
       } else {
@@ -92,27 +96,31 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
   }
 
   void getOrderStatus(String orderId) async {
-    final url = Uri.parse(
-        'https://ecommerce-rendered.onrender.com/orderlist/status/$orderId');
+    // final url = Uri.parse('http://localhost:3000/orderlist/status/$orderId');
+    final url = Uri.parse('https://ecommerce-rendered.onrender.com/status/$orderId');
 
     try {
       final response = await http.get(url);
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
         setState(() {
           currentStatus = data['order_status'] ?? '';
-          bottomSheetStatus =
-              currentStatus == 'Confirmed' ? 'Out for Delivery' : 'Delivered';
+          bottomSheetStatus = currentStatus == 'Confirmed'
+              ? 'Out for Delivery'
+              : currentStatus == 'Out for Delivery'
+                  ? 'Delivered'
+                  : currentStatus == 'Delivered'
+                      ? 'Already Delivered'
+                      : currentStatus;
+          isDelivered = currentStatus == 'Delivered';
         });
-
         debugPrint('Current status fetched: $currentStatus');
       } else {
         debugPrint('Failed to fetch status: ${response.statusCode}');
         setState(() {
           currentStatus = '';
           bottomSheetStatus = 'Out for Delivery';
+          isDelivered = false;
         });
       }
     } catch (e) {
@@ -120,31 +128,64 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
       setState(() {
         currentStatus = '';
         bottomSheetStatus = 'Out for Delivery';
+        isDelivered = false;
       });
     }
   }
 
   void updatedStatus() async {
-    // Check current status and toggle it
+    if (currentStatus == 'Delivered') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Order is already Delivered!')),
+      );
+      return;
+    }
     if (bottomSheetStatus == 'Out for Delivery') {
       setState(() {
-        bottomSheetStatus = 'Delivered'; // Change the UI text
+        bottomSheetStatus = 'Delivered';
       });
-      // Update the database to "Delivered"
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Product Out for Delivery !!!')),
+      );
       await status(widget.orderItemsId, 'Out for Delivery');
     } else if (bottomSheetStatus == 'Delivered') {
       setState(() {
-        bottomSheetStatus = 'Delivered'; // Change the UI text
+        bottomSheetStatus = 'Already Delivered';
+        isDelivered = true;
       });
-      // Update the database to "Out for Delivery"
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Product Delivered !!!')),
+      );
       await status(widget.orderItemsId, 'Delivered');
+      // Pass updated status back to OrdersScreen
+      // Navigator.pop(context, 'Delivered');
     }
   }
 
-  // Function to update status in the database
+  Future<void> stockUpdatePost(String title, int quantity) async {
+    // final url = Uri.parse('http://localhost:3000/stock-update'); 
+    final url = Uri.parse('https://ecommerce-rendered.onrender.com/stock-update');
+
+    try {
+      final response = await http.patch(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'title': title, 'quantity': quantity}),
+      );
+      if (response.statusCode == 200) {
+        debugPrint('Stock updated successfully ${response.body}');
+      } else {
+        final error = jsonDecode(response.body)['message'] ?? 'Update failed';
+        debugPrint('Error: $error');
+      }
+    } catch (e) {
+      debugPrint('Exception: $e');
+    }
+  }
+
   Future<void> status(String orderId, String newStatus) async {
-    final url =
-        Uri.parse('https://ecommerce-rendered.onrender.com/orderlist/$orderId');
+    // final url = Uri.parse('http://localhost:3000/orderlist/$orderId');
+    final url = Uri.parse('https://ecommerce-rendered.onrender.com/orderlist/$orderId');
 
     try {
       final response = await http.put(
@@ -152,23 +193,40 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'order_status': newStatus}),
       );
-
+      debugPrint('newStatus Response : $newStatus');
       if (response.statusCode == 200) {
-        debugPrint('Status updated successfully to: $newStatus');
+        setState(() {
+          currentStatus = newStatus;
+          if (newStatus == 'Delivered') {
+            for (var orderItem in orderItems) {
+              stockUpdatePost(orderItem['title'], orderItem['quantity']);
+              debugPrint('orderItems : ${orderItem['quantity']}');
+            }
+            debugPrint('EK API CALL KARNA HAI !!!');
+            debugPrint('orderItems : $orderItems');
+          }
+          debugPrint('Status response : ${response.body}');
+        });
       } else {
         debugPrint('Failed to update status: ${response.statusCode}');
-        // Revert the status change if the update fails
         setState(() {
-          bottomSheetStatus =
-              newStatus == 'Delivered' ? 'Out for Delivery' : 'Delivered';
+          bottomSheetStatus = newStatus == 'Delivered'
+              ? 'Out for Delivery'
+              : newStatus == 'Out for Delivery'
+                  ? 'Delivered'
+                  : bottomSheetStatus;
+          isDelivered = newStatus == 'Delivered';
         });
       }
     } catch (e) {
       debugPrint('Error updating status: $e');
-      // Revert the status change if there's an error
       setState(() {
-        bottomSheetStatus =
-            newStatus == 'Delivered' ? 'Out for Delivery' : 'Delivered';
+        bottomSheetStatus = newStatus == 'Delivered'
+            ? 'Out for Delivery'
+            : newStatus == 'Out for Delivery'
+                ? 'Delivered'
+                : bottomSheetStatus;
+        isDelivered = newStatus == 'Delivered';
       });
     }
   }
@@ -179,54 +237,31 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          icon: Icon(
-            Icons.arrow_back,
-            color: Colors.white,
-          ),
+          onPressed: () => Navigator.pop(context, currentStatus),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
         ),
-        title: const Text(
-          'User Products Order',
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
+        title: const Text('User Products Order',
+            style: TextStyle(color: Colors.white)),
       ),
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
+          ? const Center(child: CircularProgressIndicator())
           : errorMessage.isNotEmpty
               ? Center(
-                  child: Text(
-                    errorMessage,
-                    style: const TextStyle(
-                      color: Colors.red,
-                    ),
-                  ),
-                )
+                  child: Text(errorMessage,
+                      style: const TextStyle(color: Colors.red)))
               : orderItems.isEmpty
-                  ? const Center(
-                      child: Text('No items found'),
-                    )
+                  ? const Center(child: Text('No items found'))
                   : Container(
                       margin: const EdgeInsets.only(
-                        top: 24,
-                        left: 24,
-                        right: 24,
-                        bottom: 60,
-                      ),
+                          top: 24, left: 24, right: 24, bottom: 60),
                       decoration: BoxDecoration(
                         color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2))
                         ],
                       ),
                       child: ListView.builder(
@@ -247,44 +282,36 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
                                       children: [
                                         Row(
                                           children: [
-                                            const Text(
-                                              'Order details',
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
+                                            const Text('Order details',
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
                                             const SizedBox(width: 8),
                                             Container(
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 2,
-                                              ),
+                                                      horizontal: 8,
+                                                      vertical: 2),
                                               decoration: BoxDecoration(
                                                 color: Colors.grey[200],
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                               ),
                                               child: Text(
-                                                '${orderItems.length}',
-                                                style: TextStyle(
-                                                  color: Colors.grey,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
+                                                  '${orderItems.length}',
+                                                  style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 14)),
                                             ),
                                           ],
                                         ),
                                         TextButton(
                                           onPressed: () {},
-                                          child: Text(
-                                            currentStatus,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w300,
-                                              letterSpacing: 1.5,
-                                            ),
-                                          ),
+                                          child: Text(currentStatus,
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w300,
+                                                  letterSpacing: 1.5)),
                                         ),
                                       ],
                                     ),
@@ -294,12 +321,10 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
                                   children: [
                                     Row(
                                       children: [
-                                        // Product Details
                                         Expanded(
                                           flex: 2,
                                           child: Row(
                                             children: [
-                                              // Product Image
                                               Container(
                                                 width: 80,
                                                 height: 80,
@@ -307,10 +332,9 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
                                                   borderRadius:
                                                       BorderRadius.circular(8),
                                                   image: DecorationImage(
-                                                    image: NetworkImage(
-                                                        item['thumbnail']),
-                                                    fit: BoxFit.cover,
-                                                  ),
+                                                      image: NetworkImage(
+                                                          item['thumbnail']),
+                                                      fit: BoxFit.cover),
                                                 ),
                                               ),
                                               const SizedBox(width: 16),
@@ -318,21 +342,17 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                                  Text(
-                                                    item['title'],
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
+                                                  Text(item['title'],
+                                                      style: const TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w500)),
                                                 ],
                                               ),
                                             ],
                                           ),
                                         ),
                                         const SizedBox(width: 16),
-                                        // Price and Quantity
                                         Expanded(
                                           flex: 3,
                                           child: Row(
@@ -341,64 +361,48 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
                                             children: [
                                               Column(
                                                 children: [
-                                                  Text(
-                                                    'Price',
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
+                                                  Text('Price',
+                                                      style: const TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w600)),
                                                   SizedBox(height: 5.0),
                                                   Text(
-                                                    '\$${item['price'].toStringAsFixed(2)}',
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
+                                                      '\$${item['price'].toStringAsFixed(2)}',
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w500)),
                                                 ],
                                               ),
                                               const SizedBox(height: 4),
                                               Column(
                                                 children: [
-                                                  Text(
-                                                    'Qty',
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
+                                                  Text('Qty',
+                                                      style: const TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w600)),
                                                   SizedBox(height: 5.0),
-                                                  Text(
-                                                    '${item['quantity']}',
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
+                                                  Text('${item['quantity']}',
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w500)),
                                                 ],
                                               ),
                                               const SizedBox(height: 4),
                                               Column(
                                                 children: [
-                                                  Text(
-                                                    'Total Price',
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
+                                                  Text('Total Price',
+                                                      style: const TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w600)),
                                                   SizedBox(height: 5.0),
                                                   Text(
-                                                    '\$${item['price'] * item['quantity']}',
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
+                                                      '\$${item['price'] * item['quantity']}',
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w500)),
                                                 ],
                                               ),
                                             ],
@@ -414,19 +418,18 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
                         },
                       ),
                     ),
-      bottomSheet: GestureDetector(
-        onTap: () {
-          updatedStatus();
-        },
-        child: SizedBox(
-          height: 50,
-          width: double.infinity,
+      bottomSheet: Container(
+        height: 50,
+        width: double.infinity,
+        color: isDelivered ? Colors.grey.shade300 : Color(0xffdb3022),
+        child: GestureDetector(
+          onTap: isDelivered ? null : updatedStatus,
           child: Center(
             child: Text(
               bottomSheetStatus,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w300,
-                color: Colors.white,
+                color: isDelivered ? Colors.white70 : Colors.white,
                 letterSpacing: 1.5,
                 fontSize: 16,
               ),

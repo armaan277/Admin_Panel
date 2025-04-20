@@ -224,6 +224,8 @@ class _GroupCardsScreenState extends State<GroupCardsScreen> {
 
   void getProducts() async {
     final url = Uri.parse('https://ecommerce-rendered.onrender.com/products');
+    // final url = Uri.parse('http://localhost:3000/productss');
+
     final response = await http.get(url);
     final listResponse = jsonDecode(response.body);
     products = listResponse;
@@ -235,6 +237,8 @@ class _GroupCardsScreenState extends State<GroupCardsScreen> {
     try {
       // Construct the API URL
       final url = Uri.parse('https://ecommerce-rendered.onrender.com/reviews');
+      // final url = Uri.parse('http://localhost:3000/reviews');
+
 
       // Send GET request
       final response = await http.get(url);

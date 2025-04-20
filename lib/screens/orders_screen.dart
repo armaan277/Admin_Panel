@@ -1,5 +1,4 @@
 import 'dart:convert';
-// import 'package:admin_panel/all_orders_items.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -20,9 +19,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(), // Default date
-      firstDate: DateTime(2000), // Earliest date the user can select
-      lastDate: DateTime(2100), // Latest date the user can select
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
     );
 
     if (picked != null && picked != selectedDate) {
@@ -35,6 +34,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   List<dynamic> orders = [];
   bool isLoading = true;
   Map<String, bool> isOrderUpdating = {};
+  String? statusComeFromOIS; // Remove if not needed globally
 
   @override
   void initState() {
@@ -48,18 +48,16 @@ class _OrdersScreenState extends State<OrdersScreen> {
         : DateFormat('d MMM yyyy').format(date!);
   }
 
-  // Fetch orders from the backend
   Future<void> fetchOrders() async {
-    final url = Uri.parse(
-      'https://ecommerce-rendered.onrender.com/orderslist',
-    ); // Backend URL
+    // final url = Uri.parse('http://localhost:3000/orderslist');
+    final url = Uri.parse('https://ecommerce-rendered.onrender.com/orderslist');
+
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        debugPrint('data : $data');
         setState(() {
-          orders = data; // Extract orders from the response
+          orders = data;
           isLoading = false;
         });
       } else {
@@ -68,10 +66,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Center(
-              child: Text('Failed to load orders!'),
-            ),
-          ),
+              content: Center(child: Text('Failed to load orders!'))),
         );
       }
     } catch (e) {
@@ -79,11 +74,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
         isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Center(
-            child: Text('Error fetching orders: $e'),
-          ),
-        ),
+        SnackBar(content: Center(child: Text('Error fetching orders: $e'))),
       );
     }
   }
@@ -92,12 +83,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
-// Get today's date and format it to match 'order_booking_date'
     final String todayDate = DateFormat('d-M-yyyy').format(DateTime.now());
     debugPrint('Today\'s Date: $todayDate');
-
-// Format the selected date to match the 'order_booking_date' format
-    formattedDate = todayDate; // Default to today's date
+    formattedDate = todayDate;
     if (selectedDate != null) {
       formattedDate = DateFormat('d-M-yyyy').format(selectedDate!);
       debugPrint('Formatted Selected Date: $formattedDate');
@@ -105,12 +93,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
     List filtersOdersLength(List orders, String status) {
       return orders
-          .where(
-            (order) => status == ''
-                ? order['order_booking_date'] == formattedDate
-                : order['order_status'] == status &&
-                    order['order_booking_date'] == formattedDate,
-          )
+          .where((order) => status == ''
+              ? order['order_booking_date'] == formattedDate
+              : order['order_status'] == status &&
+                  order['order_booking_date'] == formattedDate)
           .toList();
     }
 
@@ -140,38 +126,29 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     indicatorWeight: 3,
                     tabs: [
                       Tab(
-                        text:
-                            'All Orders (${filtersOdersLength(orders, '').length})',
-                      ),
+                          text:
+                              'All Orders (${filtersOdersLength(orders, '').length})'),
                       Tab(
-                        text:
-                            'Confirmed (${filtersOdersLength(orders, 'Confirmed').length})',
-                      ),
+                          text:
+                              'Confirmed (${filtersOdersLength(orders, 'Confirmed').length})'),
                       Tab(
-                        text:
-                            'Out for Delivery (${filtersOdersLength(orders, 'Out for Delivery').length})',
-                      ),
+                          text:
+                              'Out for Delivery (${filtersOdersLength(orders, 'Out for Delivery').length})'),
                       Tab(
-                        text:
-                            'Delivered (${filtersOdersLength(orders, 'Delivered').length})',
-                      ),
+                          text:
+                              'Delivered (${filtersOdersLength(orders, 'Delivered').length})'),
                       Tab(
-                        text:
-                            'Cancelled (${filtersOdersLength(orders, 'Canceled').length})',
-                      ),
+                          text:
+                              'Cancelled (${filtersOdersLength(orders, 'Canceled').length})'),
                     ],
                   ),
                 ),
               ),
               Row(
                 children: [
-                  Text(
-                    formatDate(selectedDate),
-                  ),
+                  Text(formatDate(selectedDate)),
                   IconButton(
-                    onPressed: () {
-                      _selectDate(context);
-                    },
+                    onPressed: () => _selectDate(context),
                     icon: Icon(Icons.date_range_sharp),
                   ),
                 ],
@@ -183,50 +160,30 @@ class _OrdersScreenState extends State<OrdersScreen> {
             ? const Center(child: CircularProgressIndicator())
             : TabBarView(
                 children: [
-                  _buildOrdersList(
-                    orders
-                        .where(
-                          (order) =>
-                              order['order_booking_date'] == formattedDate,
-                        )
-                        .toList(),
-                  ), // All orders
-                  _buildOrdersList(
-                    orders
-                        .where(
-                          (order) =>
-                              order['order_status'] == 'Confirmed' &&
-                              order['order_booking_date'] == formattedDate,
-                        )
-                        .toList(),
-                  ),
-                  _buildOrdersList(
-                    orders
-                        .where(
-                          (order) =>
-                              order['order_status'] == 'Out for Delivery' &&
-                              order['order_booking_date'] == formattedDate,
-                        )
-                        .toList(),
-                  ),
-                  _buildOrdersList(
-                    orders
-                        .where(
-                          (order) =>
-                              order['order_status'] == 'Delivered' &&
-                              order['order_booking_date'] == formattedDate,
-                        )
-                        .toList(),
-                  ),
-                  _buildOrdersList(
-                    orders
-                        .where(
-                          (order) =>
-                              order['order_status'] == 'Canceled' &&
-                              order['order_booking_date'] == formattedDate,
-                        )
-                        .toList(),
-                  ),
+                  _buildOrdersList(orders
+                      .where((order) =>
+                          order['order_booking_date'] == formattedDate)
+                      .toList()),
+                  _buildOrdersList(orders
+                      .where((order) =>
+                          order['order_status'] == 'Confirmed' &&
+                          order['order_booking_date'] == formattedDate)
+                      .toList()),
+                  _buildOrdersList(orders
+                      .where((order) =>
+                          order['order_status'] == 'Out for Delivery' &&
+                          order['order_booking_date'] == formattedDate)
+                      .toList()),
+                  _buildOrdersList(orders
+                      .where((order) =>
+                          order['order_status'] == 'Delivered' &&
+                          order['order_booking_date'] == formattedDate)
+                      .toList()),
+                  _buildOrdersList(orders
+                      .where((order) =>
+                          order['order_status'] == 'Canceled' &&
+                          order['order_booking_date'] == formattedDate)
+                      .toList()),
                 ],
               ),
       ),
@@ -239,18 +196,17 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return filteredOrders.isEmpty
         ? Center(
             child: Text(
-            '${selectedDate != null ? DateFormat('d MMM yyyy').format(selectedDate!) : formatDate(DateTime.now())}, No orders found',
-            style: const TextStyle(
-              fontWeight: FontWeight.w300,
-              color: Colors.grey,
-              fontSize: 20,
+              '${selectedDate != null ? DateFormat('d MMM yyyy').format(selectedDate!) : formatDate(DateTime.now())}, No orders found',
+              style: const TextStyle(
+                  fontWeight: FontWeight.w300,
+                  color: Colors.grey,
+                  fontSize: 20),
             ),
-          ))
+          )
         : Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
-                // Table Headers
                 SizedBox(height: 5),
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -258,10 +214,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     color: Theme.of(context).cardColor,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.white60.withOpacity(0.2),
-                        blurRadius: 2,
-                        offset: const Offset(2, 2),
-                      ),
+                          color: Colors.white60.withOpacity(0.2),
+                          blurRadius: 2,
+                          offset: const Offset(2, 2))
                     ],
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -275,13 +230,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       Expanded(flex: 2, child: Center(child: Text('Price'))),
                       Expanded(flex: 2, child: Center(child: Text('Status'))),
                       Expanded(
-                        child: Center(
-                          child: Padding(
-                            padding: EdgeInsets.only(right: 7.0),
-                            child: Text('Action'),
-                          ),
-                        ),
-                      ),
+                          child: Center(
+                              child: Padding(
+                                  padding: EdgeInsets.only(right: 7.0),
+                                  child: Text('Action')))),
                     ],
                   ),
                 ),
@@ -291,22 +243,28 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     itemCount: filteredOrders.length,
                     itemBuilder: (context, index) {
                       final order = filteredOrders[index];
-
-                      // Parse and format the order booking time
                       String formattedOrderTime =
                           formatOrderTime(order['order_booking_time']);
 
                       return InkWell(
-                        onTap: () {
-                          Navigator.of(context).push(
+                        onTap: () async {
+                          final newStatus = await Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) {
-                                return OrdersItemsScreen(
-                                  orderItemsId: order['order_items_id'],
-                                );
-                              },
+                              builder: (context) => OrdersItemsScreen(
+                                  orderItemsId: order['order_items_id']),
                             ),
                           );
+                          if (newStatus != null) {
+                            setState(() {
+                              final orderIndex = orders.indexWhere((o) =>
+                                  o['order_items_id'] ==
+                                  order['order_items_id']);
+                              if (orderIndex != -1) {
+                                orders[orderIndex]['order_status'] =
+                                    newStatus; // Update local list
+                              }
+                            });
+                          }
                         },
                         child: Container(
                           margin: const EdgeInsets.symmetric(vertical: 4),
@@ -316,54 +274,36 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             borderRadius: BorderRadius.circular(8),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.grey.withOpacity(0.1),
-                                blurRadius: 2,
-                                offset: const Offset(3, 3),
-                              ),
+                                  color: Colors.grey.withOpacity(0.1),
+                                  blurRadius: 2,
+                                  offset: const Offset(3, 3))
                             ],
                           ),
                           child: Row(
                             children: [
                               Expanded(
-                                flex: 2,
-                                child: Center(
-                                  child: Text(order['orders_id'].toString()),
-                                ),
-                              ),
+                                  flex: 2,
+                                  child: Center(
+                                      child:
+                                          Text(order['orders_id'].toString()))),
+                              Expanded(flex: 3, child: Text(order['name'])),
                               Expanded(
-                                flex: 3,
-                                child: Text(order['name']),
-                              ),
+                                  flex: 8,
+                                  child: Text(order['address'],
+                                      overflow: TextOverflow.ellipsis)),
                               Expanded(
-                                flex: 8,
-                                child: Text(
-                                  order['address'],
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
+                                  flex: 2,
+                                  child: Text(order['phone'],
+                                      overflow: TextOverflow.ellipsis)),
                               Expanded(
-                                flex: 2,
-                                child: Text(
-                                  order['phone'],
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
+                                  flex: 2,
+                                  child:
+                                      Center(child: Text(formattedOrderTime))),
                               Expanded(
-                                flex: 2,
-                                child: Center(
-                                  child: Text(
-                                    formattedOrderTime,
-                                  ), // Display formatted time
-                                ),
-                              ),
-                              Expanded(
-                                flex: 2,
-                                child: Center(
-                                  child: Text(
-                                    '${order['price'].toStringAsFixed(2)}',
-                                  ),
-                                ),
-                              ),
+                                  flex: 2,
+                                  child: Center(
+                                      child: Text(
+                                          '${order['price'].toStringAsFixed(2)}'))),
                               Expanded(
                                 flex: 2,
                                 child: Center(
@@ -415,26 +355,23 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                 ),
                               ),
                               Expanded(
-                                child: order['order_status'] == "Confirmed" ||
+                                child: (order['order_status'] == "Confirmed" ||
                                         order['order_status'] ==
-                                            "Out for Delivery"
+                                            "Out for Delivery")
                                     ? PopupMenuButton<String>(
                                         icon: Icon(Icons.more_vert),
                                         onSelected: (String value) {
-                                          order['order_status'] = value;
-                                          debugPrint(
-                                            'order["order_status"]: ${order['order_status']}',
-                                          );
+                                          setState(() {
+                                            order['order_status'] = value;
+                                          });
                                           updateStatusInDatabase(
-                                            order['order_items_id'],
-                                            order['order_status'],
-                                          );
+                                              order['order_items_id'],
+                                              order['order_status']);
                                         },
                                         itemBuilder: (BuildContext context) => [
                                           PopupMenuItem(
-                                            value: 'Canceled',
-                                            child: Text('Cancel Order'),
-                                          ),
+                                              value: 'Canceled',
+                                              child: Text('Cancel Order')),
                                         ],
                                       )
                                     : Text(''),
@@ -451,32 +388,20 @@ class _OrdersScreenState extends State<OrdersScreen> {
           );
   }
 
-// Function to format the order time
   String formatOrderTime(String timeString) {
     try {
-      // Removing the timezone part (split the string at the '+' sign and take the first part)
       String cleanedTimeString = timeString.split('+')[0];
-
-      // Parse the cleaned time string into a DateTime object
-      DateTime parsedTime = DateTime.parse("2025-01-28 " +
-          cleanedTimeString); // Adding a date to parse correctly
-
-      // Formatting the time in a desired format (e.g., 24-hour format)
-      String formattedTime =
-          DateFormat('h:mm a').format(parsedTime); // Change to desired format
-
-      return formattedTime;
+      DateTime parsedTime = DateTime.parse("2025-01-28 " + cleanedTimeString);
+      return DateFormat('h:mm a').format(parsedTime);
     } catch (e) {
-      return 'Invalid Time Format'; // In case of an error
+      return 'Invalid Time Format';
     }
   }
 
   Future<bool> updateStatusInDatabase(
-    String orderId,
-    String orderStatus,
-  ) async {
-    final url =
-        Uri.parse('https://ecommerce-rendered.onrender.com/orderlist/$orderId');
+      String orderId, String orderStatus) async {
+    // final url = Uri.parse('http://localhost:3000/orderlist/$orderId');
+    final url = Uri.parse('https://ecommerce-rendered.onrender.com/orderlist/$orderId');
 
     setState(() {
       isOrderUpdating[orderId] = true;
@@ -497,12 +422,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
         return false;
       }
     } catch (e) {
-      setState(() {});
       debugPrint('Error updating status: $e');
       return false;
     } finally {
       setState(() {
-        isOrderUpdating[orderId] = false; // Remove loading for specific order
+        isOrderUpdating[orderId] = false;
       });
     }
   }

@@ -24,7 +24,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   final stockController = TextEditingController();
   final categoryController = TextEditingController();
 
-  double _scale = 1;
+  // double _scale = 1;
   Map<int, double> _hoveredScales = {};
   bool isUpdateProduct = false;
 
@@ -276,6 +276,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   void getProducts() async {
     final url = Uri.parse('https://ecommerce-rendered.onrender.com/products');
+    // final url = Uri.parse('http://localhost:3000/productss');
+
     final response = await http.get(url);
     final listResponse = jsonDecode(response.body);
     products = listResponse;
@@ -614,6 +616,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
     try {
       final response = await http.patch(
         Uri.parse('https://ecommerce-rendered.onrender.com/products/$id'),
+        // Uri.parse('http://localhost:3000/productss/$id'),
         body: jsonEncode(updatedProduct),
         headers: {'Content-Type': 'application/json'},
       );

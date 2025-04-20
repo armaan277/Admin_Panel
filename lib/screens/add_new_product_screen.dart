@@ -571,6 +571,8 @@ class _AddNewProductScreenState extends State<AddNewProductScreen> {
   Future<void> postNewProductData() async {
     final supabase = Supabase.instance.client;
     final url = Uri.parse('https://ecommerce-rendered.onrender.com/products');
+    // final url = Uri.parse('http://localhost:3000/productss');
+
 
     List<String> imagesList = []; // Store uploaded image URLs
 
