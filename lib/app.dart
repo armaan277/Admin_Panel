@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:new_admin_panel/providers/products_provider.dart';
-import 'package:new_admin_panel/screens/add_new_product_screen.dart';
-import 'package:new_admin_panel/side_bar.dart';
+import 'package:new_admin_panel/screens/dashboard_login_screen.dart';
 import 'package:provider/provider.dart';
 
 class AdminPanel extends StatelessWidget {
@@ -12,10 +11,10 @@ class AdminPanel extends StatelessWidget {
     final themeProvider = context.watch<ProductsProvider>();
 
     return MaterialApp(
-      home: const SideBar(),
+      home: const DashboardLoginScreen(),
       theme: themeProvider.isDarkMode
           ? ThemeData.dark().copyWith(
-              progressIndicatorTheme: ProgressIndicatorThemeData(
+              progressIndicatorTheme: const ProgressIndicatorThemeData(
                 color: Colors.white, // Light mode: Red color
               ),
               switchTheme: SwitchThemeData(
@@ -32,12 +31,13 @@ class AdminPanel extends StatelessWidget {
               ),
               scaffoldBackgroundColor: Colors.black, // Dark background
               colorScheme: ColorScheme.dark(
-                primary: Color(0xffffffff), // Keep red accent
+                primary: const Color(0xffffffff), // Keep red accent
                 surface: Colors.grey[850]!, // Card backgrounds
               ),
               appBarTheme: AppBarTheme(
                 backgroundColor: Colors.grey[900],
-                titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+                titleTextStyle:
+                    const TextStyle(color: Colors.white, fontSize: 20),
               ),
               cardColor: Colors.grey[850], // Cards in dark mode
               textTheme: const TextTheme(
@@ -51,7 +51,7 @@ class AdminPanel extends StatelessWidget {
                   backgroundColor: WidgetStatePropertyAll(
                       Colors.grey[850]), // Dark background
                   foregroundColor:
-                      WidgetStatePropertyAll(Colors.white), // White text
+                      const WidgetStatePropertyAll(Colors.white), // White text
                   overlayColor: WidgetStateProperty.resolveWith<Color?>(
                     (states) {
                       if (states.contains(WidgetState.pressed)) {
@@ -69,15 +69,15 @@ class AdminPanel extends StatelessWidget {
               inputDecorationTheme: InputDecorationTheme(
                 fillColor: Colors.grey[800], // Dark input fields
                 filled: true,
-                border: OutlineInputBorder(
+                border: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.white),
                 ),
-                hintStyle: TextStyle(color: Colors.white70),
+                hintStyle: const TextStyle(color: Colors.white70),
               ),
               bottomSheetTheme: BottomSheetThemeData(
                 backgroundColor: Colors.black,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(
+                  borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(10),
                   ),
                   side: BorderSide(
@@ -86,25 +86,22 @@ class AdminPanel extends StatelessWidget {
                   ),
                 ),
               ),
-              snackBarTheme: SnackBarThemeData(
+              snackBarTheme: const SnackBarThemeData(
                 backgroundColor: Colors.black,
                 contentTextStyle: TextStyle(color: Colors.white),
               ),
             )
           : ThemeData.light().copyWith(
-              progressIndicatorTheme: ProgressIndicatorThemeData(
+              progressIndicatorTheme: const ProgressIndicatorThemeData(
                 color: Color(0xffdb3022), // Light mode: Red color
               ),
               switchTheme: SwitchThemeData(
-                thumbColor: WidgetStateProperty.resolveWith<Color>(
-                  (states) => states.contains(WidgetState.selected)
-                      ? Colors.white
-                      : Colors.black,
+                trackOutlineColor: const WidgetStatePropertyAll(
+                  Color(0xffdb3022),
                 ),
-                trackColor: WidgetStateProperty.resolveWith<Color>(
-                  (states) => states.contains(WidgetState.selected)
-                      ? Colors.black
-                      : Colors.grey[300]!,
+                trackColor: const WidgetStatePropertyAll(Colors.white),
+                thumbColor: const WidgetStatePropertyAll(
+                  Color(0xffdb3022),
                 ),
               ),
               scaffoldBackgroundColor: Colors.grey.shade100, // Light background
@@ -123,13 +120,13 @@ class AdminPanel extends StatelessWidget {
                 titleSmall: TextStyle(color: Colors.black87),
                 bodyMedium: TextStyle(color: Colors.black54),
               ),
-              elevatedButtonTheme: ElevatedButtonThemeData(
+              elevatedButtonTheme: const ElevatedButtonThemeData(
                 style: ButtonStyle(
                   backgroundColor: WidgetStatePropertyAll(Color(0xffdb3022)),
                   foregroundColor: WidgetStatePropertyAll(Colors.white),
                 ),
               ),
-              inputDecorationTheme: InputDecorationTheme(
+              inputDecorationTheme: const InputDecorationTheme(
                 fillColor: Colors.white, // Light input fields
                 filled: true,
                 border: OutlineInputBorder(
@@ -138,9 +135,9 @@ class AdminPanel extends StatelessWidget {
                 hintStyle: TextStyle(color: Colors.black45),
               ),
               bottomSheetTheme: BottomSheetThemeData(
-                backgroundColor: Color(0xffdb3022),
+                backgroundColor: const Color(0xffdb3022),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(
+                  borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(10),
                   ),
                   side: BorderSide(
@@ -149,7 +146,7 @@ class AdminPanel extends StatelessWidget {
                   ),
                 ),
               ),
-              snackBarTheme: SnackBarThemeData(
+              snackBarTheme: const SnackBarThemeData(
                 backgroundColor: Color(0xffdb3022),
                 contentTextStyle: TextStyle(color: Colors.white),
               ),

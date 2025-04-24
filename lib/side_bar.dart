@@ -19,7 +19,6 @@ class _SideBarState extends State<SideBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.grey.shade100,
       body: Row(
         children: [
           Container(
@@ -92,25 +91,25 @@ class _SideBarState extends State<SideBar> {
                   onTap: () {
                     context.read<ProductsProvider>().changeTheme();
                   },
-                  switchNightOrLightMode: ThemeSwitch(),
+                  switchNightOrLightMode: const ThemeSwitch(),
                 ),
               ],
             ),
           ),
           if (selectedSideBar == 1)
-            Expanded(
+            const Expanded(
               child: ProductsScreen(),
             ),
           if (selectedSideBar == 2)
-            Expanded(
+            const Expanded(
               child: OrdersScreen(),
             ),
           if (selectedSideBar == 3)
-            Expanded(
+            const Expanded(
               child: GroupCardsScreen(),
             ),
           if (selectedSideBar == 4)
-            Expanded(
+            const Expanded(
               child: OrdersAnalytics(),
             ),
         ],

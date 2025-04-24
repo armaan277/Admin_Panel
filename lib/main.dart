@@ -14,7 +14,7 @@ void main() async {
   runApp(
     ChangeNotifierProvider(
       create: (context) => ProductsProvider(),
-      child: AdminPanel(),
+      child: const AdminPanel(),
     ),
   );
 }

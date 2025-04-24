@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:new_admin_panel/config/endpoints.dart';
 import 'package:new_admin_panel/screens/add_new_product_screen.dart';
 
 class ProductsScreen extends StatefulWidget {
@@ -275,8 +276,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   void getProducts() async {
-    final url = Uri.parse('https://ecommerce-rendered.onrender.com/products');
-    // final url = Uri.parse('http://localhost:3000/productss');
+    final url = Uri.parse(EndPoints.getAllProductsEndPoint);
 
     final response = await http.get(url);
     final listResponse = jsonDecode(response.body);
@@ -615,8 +615,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
     try {
       final response = await http.patch(
-        Uri.parse('https://ecommerce-rendered.onrender.com/products/$id'),
-        // Uri.parse('http://localhost:3000/productss/$id'),
+        Uri.parse('${EndPoints.getAllProductsEndPoint}/$id'),
         body: jsonEncode(updatedProduct),
         headers: {'Content-Type': 'application/json'},
       );

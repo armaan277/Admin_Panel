@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:new_admin_panel/config/endpoints.dart';
 import 'package:new_admin_panel/screens/orders_items_screen.dart';
 
 class OrdersScreen extends StatefulWidget {
@@ -49,8 +50,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   Future<void> fetchOrders() async {
-    // final url = Uri.parse('http://localhost:3000/orderslist');
-    final url = Uri.parse('https://ecommerce-rendered.onrender.com/orderslist');
+    final url = Uri.parse(EndPoints.orderslistEndPoint);
+    // final url = Uri.parse('https://ecommerce-rendered.onrender.com/orderslist');
 
     try {
       final response = await http.get(url);
@@ -251,7 +252,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           final newStatus = await Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => OrdersItemsScreen(
-                                  orderItemsId: order['order_items_id']),
+                                orderItemsId: order['order_items_id'],
+                                status: order['order_status'],
+                              ),
                             ),
                           );
                           if (newStatus != null) {
@@ -365,13 +368,15 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                             order['order_status'] = value;
                                           });
                                           updateStatusInDatabase(
-                                              order['order_items_id'],
-                                              order['order_status']);
+                                            order['order_items_id'],
+                                            order['order_status'],
+                                          );
                                         },
                                         itemBuilder: (BuildContext context) => [
                                           PopupMenuItem(
-                                              value: 'Canceled',
-                                              child: Text('Cancel Order')),
+                                            value: 'Canceled',
+                                            child: Text('Cancel Order'),
+                                          ),
                                         ],
                                       )
                                     : Text(''),
@@ -400,8 +405,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   Future<bool> updateStatusInDatabase(
       String orderId, String orderStatus) async {
+    final url = Uri.parse('${EndPoints.orderlistEndPoint}/$orderId');
+
     // final url = Uri.parse('http://localhost:3000/orderlist/$orderId');
-    final url = Uri.parse('https://ecommerce-rendered.onrender.com/orderlist/$orderId');
+    // final url =
+    // Uri.parse('https://ecommerce-rendered.onrender.com/orderlist/$orderId');
 
     setState(() {
       isOrderUpdating[orderId] = true;

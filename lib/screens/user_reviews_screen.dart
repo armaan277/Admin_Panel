@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:new_admin_panel/config/endpoints.dart';
 
 class UserReviewsScreen extends StatefulWidget {
   final int id;
@@ -204,8 +205,7 @@ class _UserReviewsScreenState extends State<UserReviewsScreen> {
 
   Future<void> getReviewData() async {
     try {
-      final url = Uri.parse('https://ecommerce-rendered.onrender.com/reviews');
-      // final url = Uri.parse('http://localhost:3000/reviews');
+      final url = Uri.parse(EndPoints.reviewsEndPoint);
 
       final response = await http.get(url);
 

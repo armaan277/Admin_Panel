@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:new_admin_panel/config/endpoints.dart';
 
 class OrdersAnalytics extends StatefulWidget {
   const OrdersAnalytics({super.key});
@@ -391,10 +392,8 @@ class _OrdersAnalyticsState extends State<OrdersAnalytics> {
   void getOrders() async {
     if (startDate == null || endDate == null) return;
 
-    final url = Uri.parse('https://ecommerce-rendered.onrender.com/orderslist'); 
-    // final url = Uri.parse('http://localhost:3000/orderslist'); 
+    final url = Uri.parse(EndPoints.orderslistEndPoint);
 
-    
     final response = await http.get(url);
     final listResponse = jsonDecode(response.body);
     orders = listResponse;

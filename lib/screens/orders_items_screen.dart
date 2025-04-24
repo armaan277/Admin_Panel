@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:new_admin_panel/config/endpoints.dart';
 
 class OrdersItemsScreen extends StatefulWidget {
   final String orderItemsId;
+  final String status;
 
   const OrdersItemsScreen({
     super.key,
     required this.orderItemsId,
+    required this.status,
   });
 
   @override
@@ -37,8 +40,8 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
   }
 
   void fetchOrderItems(String orderIdItems) async {
-    final url = Uri.parse('https://ecommerce-rendered.onrender.com/bookingcarts/$orderIdItems'); 
-    // final url = Uri.parse('http://localhost:3000/bookingcarts/$orderIdItems');
+    // final url = Uri.parse('https://ecommerce-rendered.onrender.com/bookingcarts/$orderIdItems');
+    final url = Uri.parse("${EndPoints.bookingCartsEndPoint}/$orderIdItems");
     debugPrint('Fetching items for orderItemsId: $orderIdItems');
     try {
       final response = await http.get(url);
@@ -71,33 +74,34 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
     }
   }
 
-  Future<bool> updateStatusInDatabase(
-      String orderId, String orderStatus) async {
-    // final url = Uri.parse('http://localhost:3000/orderlist/$orderId');
-    final url = Uri.parse('https://ecommerce-rendered.onrender.com/orderlist/$orderId');
-    try {
-      final response = await http.put(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'order_status': orderStatus}),
-      );
-      if (response.statusCode == 200) {
-        debugPrint('orderlist response: -> ${response.body}');
-        debugPrint('Status updated successfully: $orderStatus');
-        return true;
-      } else {
-        debugPrint('Failed to update status: ${response.statusCode}');
-        return false;
-      }
-    } catch (e) {
-      debugPrint('Error updating status: $e');
-      return false;
-    }
-  }
+  // Future<bool> updateStatusInDatabase(
+  //     String orderId, String orderStatus) async {
+  //   final url = Uri.parse('http://localhost:3000/orderlist/$orderId');
+  //   // final url = Uri.parse('https://ecommerce-rendered.onrender.com/orderlist/$orderId');
+  //   try {
+  //     final response = await http.put(
+  //       url,
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode({'order_status': orderStatus}),
+  //     );
+  //     if (response.statusCode == 200) {
+  //       debugPrint('orderlist response: -> ${response.body}');
+  //       debugPrint('Status updated successfully: $orderStatus');
+  //       return true;
+  //     } else {
+  //       debugPrint('Failed to update status: ${response.statusCode}');
+  //       return false;
+  //     }
+  //   } catch (e) {
+  //     debugPrint('Error updating status: $e');
+  //     return false;
+  //   }
+  // }
 
   void getOrderStatus(String orderId) async {
+    final url = Uri.parse('${EndPoints.orderlistStatusEndPoint}/$orderId');
     // final url = Uri.parse('http://localhost:3000/orderlist/status/$orderId');
-    final url = Uri.parse('https://ecommerce-rendered.onrender.com/status/$orderId');
+    // final url = Uri.parse('https://ecommerce-rendered.onrender.com/status/$orderId');
 
     try {
       final response = await http.get(url);
@@ -157,14 +161,13 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
         const SnackBar(content: Text('Product Delivered !!!')),
       );
       await status(widget.orderItemsId, 'Delivered');
-      // Pass updated status back to OrdersScreen
-      // Navigator.pop(context, 'Delivered');
     }
   }
 
   Future<void> stockUpdatePost(String title, int quantity) async {
-    // final url = Uri.parse('http://localhost:3000/stock-update'); 
-    final url = Uri.parse('https://ecommerce-rendered.onrender.com/stock-update');
+    final url = Uri.parse(EndPoints.stockUpdateEndPoint);
+    // final url = Uri.parse('http://localhost:3000/stock-update');
+    // final url = Uri.parse('https://ecommerce-rendered.onrender.com/stock-update');
 
     try {
       final response = await http.patch(
@@ -184,8 +187,10 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
   }
 
   Future<void> status(String orderId, String newStatus) async {
+    final url = Uri.parse('${EndPoints.orderlistEndPoint}/$orderId');
+
     // final url = Uri.parse('http://localhost:3000/orderlist/$orderId');
-    final url = Uri.parse('https://ecommerce-rendered.onrender.com/orderlist/$orderId');
+    // final url = Uri.parse('https://ecommerce-rendered.onrender.com/orderlist/$orderId');
 
     try {
       final response = await http.put(
@@ -421,7 +426,16 @@ class OrdersItemsScreenState extends State<OrdersItemsScreen> {
       bottomSheet: Container(
         height: 50,
         width: double.infinity,
-        color: isDelivered ? Colors.grey.shade300 : Color(0xffdb3022),
+        decoration: BoxDecoration(
+          border: Border(right: BorderSide.none, left: BorderSide.none),
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(10),
+            topLeft: Radius.circular(10),
+          ),
+          color: isDelivered || widget.status == 'Canceled'
+              ? Colors.red.shade200
+              : Color(0xffdb3022),
+        ),
         child: GestureDetector(
           onTap: isDelivered ? null : updatedStatus,
           child: Center(

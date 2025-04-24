@@ -3,6 +3,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
+import 'package:new_admin_panel/config/endpoints.dart';
 import 'package:new_admin_panel/screens/user_reviews_screen.dart';
 
 class GroupCardsScreen extends StatefulWidget {
@@ -223,8 +224,7 @@ class _GroupCardsScreenState extends State<GroupCardsScreen> {
   }
 
   void getProducts() async {
-    final url = Uri.parse('https://ecommerce-rendered.onrender.com/products');
-    // final url = Uri.parse('http://localhost:3000/productss');
+    final url = Uri.parse(EndPoints.getAllProductsEndPoint);
 
     final response = await http.get(url);
     final listResponse = jsonDecode(response.body);
@@ -236,9 +236,7 @@ class _GroupCardsScreenState extends State<GroupCardsScreen> {
   Future<void> getReviewData() async {
     try {
       // Construct the API URL
-      final url = Uri.parse('https://ecommerce-rendered.onrender.com/reviews');
-      // final url = Uri.parse('http://localhost:3000/reviews');
-
+      final url = Uri.parse(EndPoints.reviewsEndPoint);
 
       // Send GET request
       final response = await http.get(url);
